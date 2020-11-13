@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+cmake-build-debug/
+CMakeFiles/
+.idea/
+cmake_install.cmake
+CMakeCache.txt
+Makefile
+prog_idx.csv
+ProgressiveMergesort.cbp

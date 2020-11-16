@@ -2,6 +2,9 @@
 #include <chrono>
 #include <iostream>
 #include <random>
+#include <algorithm>
+#include "progressive/progressive_index.hpp"
+
 using namespace std;
 using namespace chrono;
 
@@ -15,8 +18,7 @@ Experiment::Experiment(size_t column_size, size_t num_updates, size_t frequency,
     for (size_t i{}; i < COLUMN_SIZE + update_size; i++) {
       all_data.push_back(i);
     }
-    std::random_device rd;
-    std::mt19937 g(rd());
+    std::mt19937 g(3);
     shuffle(all_data.begin(), all_data.end(), g);
     original_table.inititalize(all_data, COLUMN_SIZE);
   }
@@ -67,10 +69,12 @@ void Experiment::print_result(){
   }
 }
 
-std::unique_ptr<Index> Experiment::get_algorithm() const {
+std::unique_ptr<Index> Experiment::get_algorithm() {
   switch (type) {
   case IndexType::Cracking:
     return std::make_unique<CrackerIndex>(update_type);
+    case IndexType::Progressive:
+    return std::make_unique<ProgressiveIndex>(original_table.column,DELTA,update_type);
   default:
     throw "Not implemented";
   }

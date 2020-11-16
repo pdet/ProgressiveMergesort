@@ -9,7 +9,7 @@ public:
   size_t NUM_UPDATES = 0;
   size_t COLUMN_SIZE = 10000000;
   size_t FREQUENCY = 10;
-  const size_t NUM_QUERIES = 100;
+  const size_t NUM_QUERIES = 200;
   OriginalTable original_table;
   std::vector<std::pair<int64_t, int64_t>> queries;
   IndexType type;
@@ -24,11 +24,11 @@ public:
 private:
   //! Constants for the experiment
   const double SELECTIVITY = 0.01;
-  const size_t DELTA = 0.1;
+  const double DELTA = 0.1;
   const size_t START_UPDATES_AFTER = 50;
   //! Tracks the current update in this execution
   size_t current_update = 0;
   std::vector<double> time;
 
-  [[nodiscard]] std::unique_ptr<Index> get_algorithm() const;
+  [[nodiscard]] std::unique_ptr<Index> get_algorithm();
 };

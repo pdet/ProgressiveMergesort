@@ -1,7 +1,39 @@
 #include "cracking/avl_tree.hpp"
 #include <column.hpp>
 #include <cracking/cracker_index.hpp>
+#include <cassert>
+#include <algorithm>
 using namespace std;
+
+int64_t binary_search(Column &c, int64_t key, int64_t lower, int64_t upper,
+                      bool *foundKey) {
+  *foundKey = false;
+  while (lower <= upper) {
+    int middle = (lower + upper) / 2;
+    auto middleElement = c[middle];
+
+    if (middleElement < key) {
+      lower = middle + 1;
+    } else if (middleElement > key) {
+      upper = middle - 1;
+    } else {
+      *foundKey = true;
+      return middle;
+    }
+  }
+  return upper;
+}
+
+int64_t binary_search_gte(Column &c, int64_t key, int64_t start, int64_t end) {
+  bool found = false;
+  int pos = binary_search(c, key, start, end, &found);
+  if (found) {
+    while (--pos >= start && c[pos] == key)
+      ;
+  }
+  ++pos;
+  return pos;
+}
 
 int64_t crack_in_two(Column &c, int64_t posL, int64_t posH, int64_t med) {
   int64_t x1 = posL, x2 = posH;
@@ -199,35 +231,7 @@ void CrackerIndex::merge_ripple(int64_t posL, int64_t posH,int64_t high) {
         }
     }
 }
-int64_t binary_search(Column &c, int64_t key, int64_t lower, int64_t upper,
-                      bool *foundKey) {
-  *foundKey = false;
-  while (lower <= upper) {
-    int middle = (lower + upper) / 2;
-    auto middleElement = c[middle];
 
-    if (middleElement < key) {
-      lower = middle + 1;
-    } else if (middleElement > key) {
-      upper = middle - 1;
-    } else {
-      *foundKey = true;
-      return middle;
-    }
-  }
-  return upper;
-}
-
-int64_t binary_search_gte(Column &c, int64_t key, int64_t start, int64_t end) {
-  bool found = false;
-  int pos = binary_search(c, key, start, end, &found);
-  if (found) {
-    while (--pos >= start && c[pos] == key)
-      ;
-  }
-  ++pos;
-  return pos;
-}
 
 void CrackerIndex::build(Column &original_column,
                          pair<int64_t, int64_t> range_query) {
@@ -241,6 +245,7 @@ void CrackerIndex::build(Column &original_column,
     case UpdateType::Complete: {
       sort(append_list.data.begin(), append_list.data.end());
       merge(0, append_list.size() - 1);
+//      tree.verify_tree(index_column);
       append_list.clear();
       break;
     }

@@ -1,7 +1,6 @@
 #pragma once
 #include "index.hpp"
 #include "cracking/avl_tree.hpp"
-enum UpdateType{Complete, Gradual, Ripple};
 class CrackerIndex: public Index{
 public:
   ~CrackerIndex() override = default;
@@ -12,9 +11,11 @@ public:
               int64_t &result) override;
   void push_update(std::pair<int64_t, int64_t> update) override;
 private:
+
   AVLTree tree;
   UpdateType update_type;
   Column append_list;
+  Column index_column;
   bool updates_sorted = false;
   void merge(int64_t posL, int64_t posH);
   void merge_ripple(int64_t posL, int64_t posH,int64_t high);

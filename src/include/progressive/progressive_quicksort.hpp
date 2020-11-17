@@ -43,7 +43,9 @@ struct IncrementalQuicksortIndex {
 class ProgressiveQuicksort{
 
 public:
-    explicit ProgressiveQuicksort(Column* original_column): original_column(original_column){};
+    explicit ProgressiveQuicksort(Column* original_column): original_column(original_column){
+        qs_index.size = original_column->size();
+    };
     ResultStruct execute_range_query(std::pair<int64_t, int64_t> range_query, ssize_t &remaining_swaps);
     bool converged = false;
     IncrementalQuicksortIndex qs_index;

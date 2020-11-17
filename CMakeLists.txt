@@ -10,6 +10,11 @@ set(updates_sources src/experiment.cpp src/cracking/cracking.cpp src/cracking/av
 
 add_library(updates ${updates_sources})
 
+# Compile main
+set(main_sources src/main.cpp)
+add_executable(main ${main_sources})
+target_link_libraries(main updates)
+
 # Compile tests
 set(test_sources test/test.cpp)
 add_executable(tests ${test_sources})

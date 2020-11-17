@@ -7,8 +7,9 @@
 
 class ProgressiveMergesort{
 public:
-    ResultStruct execute_range_query(Column &original_column, std::pair<int64_t, int64_t> range_query, ssize_t& remaining_swaps);
+    ResultStruct execute_range_query(Column &original_column, std::pair<int64_t, int64_t> range_query, ssize_t& remaining_swaps, double original_delta);
     Column *updates = new Column();
+    int unsorted_column_count = 1;
 
 private:
     Column *merge_column = nullptr;
@@ -17,6 +18,6 @@ private:
     size_t left_column = 0, right_column = 0, merge_index = 0;
     ssize_t left_chunk, right_chunk;
     std::vector<bool> has_converged;
-    int unsorted_column_count = 1;
+
     double SORTED_COLUMN_RATIO = 16;
 };

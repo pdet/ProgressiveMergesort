@@ -158,6 +158,13 @@ void CrackerIndex::merge_ripple(int64_t posL, int64_t posH,int64_t high) {
             offsetsToUpdate.push_back(currentNode);
             pieceSize = rightNode->offset - currentNode->offset;
         }
+        //! If current_node = last_node we do a MCI
+        if (currentNode == lastNode) {
+        merge(posL, posH);
+        //! Erase from updates whatever was merged
+        append_list.erase( posL, posH + 1);
+        return;
+    }
         //! Check if piece actually belongs here
         //! If its first node then must be here.
         if (!leftNode || currentNode == firstNode) {
@@ -170,9 +177,7 @@ void CrackerIndex::merge_ripple(int64_t posL, int64_t posH,int64_t high) {
         tmp = index_column.get(currentNode->offset + 1);
         index_column.set(append_list.get(posL),currentNode->offset + 1);
         append_list.set(tmp,posL++);
-//        tmp = column[currentNode->offset + 1];
-//        column[currentNode->offset + 1] = updates[posL];
-//        updates[posL++] = tmp;
+
         //! Increment node offset
         for (const auto& offset : offsetsToUpdate) {
             offset->offset++;

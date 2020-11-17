@@ -39,3 +39,7 @@ CMakeCache.txt
 Makefile
 prog_idx.csv
 ProgressiveMergesort.cbp
+.ipynb_checkpoints/
+results/
+main
+tests

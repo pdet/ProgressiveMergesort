@@ -5,9 +5,10 @@
 #include <cstring>
 #include <cstdlib>
 #include "progressive/progressive_quicksort.hpp"
-
+#include  <utility>
 #define INSERT_SORT_LEVEL 64
 
+using namespace std;
 //! insertion sort
 static void insertion_sort(int64_t *val, size_t *ind, int n) {
     int k;
@@ -149,6 +150,47 @@ int64_t binary_search_lte(int64_t *c, int64_t key, int64_t start, int64_t end) {
     return pos;
 }
 
+int64_t binary_search(vector<pair<int64_t,size_t>>& c, int64_t key, int64_t lower, int64_t upper, bool *foundKey) {
+
+    *foundKey = false;
+    upper--;
+    while (lower <= upper) {
+        int middle = (lower + upper) / 2;
+        auto middleElement = c[middle].first;
+
+        if (middleElement < key) {
+            lower = middle + 1;
+        } else if (middleElement > key) {
+            upper = middle - 1;
+        } else {
+            *foundKey = true;
+            return middle;
+        }
+    }
+    return upper;
+}
+
+
+int64_t binary_search_gte(vector<pair<int64_t,size_t>>& c, int64_t key, int64_t start, int64_t end) {
+    bool found = false;
+    int pos = binary_search(c, key, start, end, &found);
+    if (found) {
+        while (--pos >= start && c[pos].first == key);
+    }
+    ++pos;
+    return pos;
+}
+
+int64_t binary_search_lte(vector<pair<int64_t,size_t>>& c, int64_t key, int64_t start, int64_t end) {
+    bool found = false;
+    int pos = binary_search(c, key, start, end, &found);
+    while (pos < end && c[pos].first <= key)
+        pos++;
+    pos--;
+
+    return pos;
+}
+
 
 void ProgressiveQuicksort::create_phase(std::pair<int64_t, int64_t> range_query, ResultStruct &results,
                                         ssize_t &remaining_swaps) {
@@ -229,7 +271,7 @@ void ProgressiveQuicksort::create_phase(std::pair<int64_t, int64_t> range_query,
 void range_query_sorted_subsequent_value(int64_t *index, size_t index_size, int64_t low, int64_t high, int64_t min,
                                          int64_t max, ResultStruct &results) {
     if (low <= min) {
-        if (high >= max) {
+        if (high > max) {
             //! just add all the elements
             for (size_t i = 0; i < index_size; i++) {
                 results.push_back(index[i]);
@@ -238,7 +280,7 @@ void range_query_sorted_subsequent_value(int64_t *index, size_t index_size, int6
             //! no need for binary search to obtain first entry
             //! first entry is 0
             for (size_t i = 0; i < index_size; i++) {
-                if (index[i] <= high) {
+                if (index[i] < high) {
                     results.push_back(index[i]);
                 } else {
                     break;
@@ -248,9 +290,19 @@ void range_query_sorted_subsequent_value(int64_t *index, size_t index_size, int6
     } else {
         //! perform binary search to find first element
         auto entry = &index[binary_search_gte(index, low, 0, index_size)];
-        //! no need for check after binary search
-        for (; entry != index + index_size; entry++) {
-            results.push_back(*entry);
+        if (high > max) {
+            //! no need for check after binary search
+            for (; entry != index + index_size; entry++) {
+                results.push_back(*entry);
+            }
+        } else {
+            for (; entry != index + index_size; entry++) {
+                if (*entry < high) {
+                    results.push_back(*entry);
+                } else {
+                    break;
+                }
+            }
         }
     }
 }
@@ -271,11 +323,11 @@ void ProgressiveQuicksort::SortedCheck(QuicksortNode &node) {
 }
 
 void ProgressiveQuicksort::refine_phase(QuicksortNode &node, ResultStruct &results, int64_t low,
-                                    int64_t high, ssize_t &remaining_swaps) {
+                                        int64_t high, ssize_t &remaining_swaps) {
     int64_t *index = qs_index.data;
     size_t *pointers = qs_index.index;
     if (node.sorted) {
-        if (low <= node.min && high >= node.max) {
+        if (low <= node.min && high > node.max) {
             //! query contains entire node, just add all the entries to the result
             for (size_t i = node.start; i < node.end; i++) {
                 results.push_back(index[i]);
@@ -423,16 +475,38 @@ void ProgressiveQuicksort::refine_phase(QuicksortNode &node, ResultStruct &resul
 
 void range_query_sorted_subsequent_value(int64_t *index, size_t index_size, int64_t low, int64_t high,
                                          ResultStruct &results) {
-
     int64_t lower_bound = binary_search_gte(index, low, 0, index_size);
-    int64_t high_bound = binary_search_lte(index, high, 0, index_size);
+    int64_t high_bound = binary_search_lte(index, high - 1, 0, index_size);
     for (int64_t i = lower_bound; i <= high_bound; i++) {
         results.push_back(index[i]);
     }
 }
 
+void range_query_sorted_subsequent_value(vector<pair<int64_t,size_t>> &index, size_t index_size, int64_t low, int64_t high,
+                                         ResultStruct &results) {
+    int64_t lower_bound = binary_search_gte(index, low, 0, index_size);
+    int64_t high_bound = binary_search_lte(index, high - 1, 0, index_size);
+    for (int64_t i = lower_bound; i <= high_bound; i++) {
+        results.push_back(index[i].first);
+    }
+}
+
 ResultStruct
 ProgressiveQuicksort::execute_range_query(std::pair<int64_t, int64_t> range_query, ssize_t &remaining_swaps) {
+    ResultStruct results;
+    if (qs_index.root.sorted) {
+        if (!qs_index.data){
+            //! array is sorted entirely already
+        range_query_sorted_subsequent_value(original_column->data, original_column->size(), range_query.first,
+                                            range_query.second, results);
+        }else{
+            //! array is sorted entirely already
+        range_query_sorted_subsequent_value(qs_index.data, original_column->size(), range_query.first,
+                                            range_query.second, results);
+        }
+        return results;
+    }
+
     if (!qs_index.index) {
         //! fill the initial sortindex
         //! choose an initial pivot point
@@ -447,13 +521,6 @@ ProgressiveQuicksort::execute_range_query(std::pair<int64_t, int64_t> range_quer
         qs_index.root.max = INT_MAX;
         qs_index.current_position = 0;
         qs_index.size = original_column->size();
-    }
-       ResultStruct results;
-    if (qs_index.root.sorted) {
-        converged = true;
-        //! array is sorted entirely already
-		range_query_sorted_subsequent_value(qs_index.data, original_column->size(), range_query.first, range_query.second, results);
-		return results;
     }
 
     if (qs_index.root.left < 0) {

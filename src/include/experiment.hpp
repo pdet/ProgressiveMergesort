@@ -5,6 +5,8 @@ enum IndexType { Cracking, Progressive };
 class Experiment{
 public:
   Experiment(size_t column_size, size_t num_updates, size_t frequency, IndexType index_type, UpdateType update_type);
+  Experiment(size_t num_queries, size_t column_size, IndexType index_type, UpdateType update_type, size_t num_updates, size_t frequency, size_t start_updates_after, double delta);
+
   ~Experiment()= default;
   size_t NUM_UPDATES = 0;
   size_t COLUMN_SIZE = 10000000;
@@ -24,7 +26,7 @@ public:
 private:
   //! Constants for the experiment
   const double SELECTIVITY = 0.01;
-  const double DELTA = 0.1;
+  const double DELTA = 0.5;
   const size_t START_UPDATES_AFTER = 50;
   //! Tracks the current update in this execution
   size_t current_update = 0;

@@ -29,6 +29,6 @@ private:
     std::unique_ptr <ProgressiveQuicksort> column_index;
     UpdateType update_type;
     ProgressiveMergesort update_index;
-    double delta = 0.1;
+    double delta = 0.5;
     bool converged = false;
 };

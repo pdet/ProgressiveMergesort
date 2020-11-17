@@ -5,7 +5,7 @@
 #include <experiment.hpp>
 
 size_t column_size = 1000000;
-size_t num_updates = 100;
+size_t num_updates = 10000;
 size_t frequency = 10;
 
 void run_experiment(IndexType i_type, UpdateType u_type) {
@@ -29,6 +29,6 @@ TEST_CASE("Ripple", "[cracking]") {
     run_experiment(IndexType::Cracking,UpdateType::Ripple);
 }
 
-//TEST_CASE("Mergesort", "[progressive]") {
-//    run_experiment(IndexType::Progressive,UpdateType::Mergesort);
-//}
+TEST_CASE("Mergesort", "[progressive]") {
+    run_experiment(IndexType::Progressive,UpdateType::Mergesort);
+}

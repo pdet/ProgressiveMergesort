@@ -35,12 +35,41 @@ Experiment::Experiment(size_t column_size, size_t num_updates, size_t frequency,
   index = get_algorithm();
 
 }
+Experiment::Experiment(size_t num_queries, size_t column_size, IndexType index_type, UpdateType up_type, size_t num_updates,
+           size_t frequency, size_t start_updates_after, double delta):NUM_QUERIES(num_queries),
+           START_UPDATES_AFTER(start_updates_after),DELTA(delta),COLUMN_SIZE(column_size),NUM_UPDATES(num_updates),
+           FREQUENCY(frequency), type(index_type),update_type(up_type){
+     //! Generate Column and Updates
+  size_t update_size =
+      ((NUM_QUERIES - START_UPDATES_AFTER) / FREQUENCY) * NUM_UPDATES;
+  {
+    vector<int64_t> all_data;
+    for (size_t i{}; i < COLUMN_SIZE + update_size; i++) {
+      all_data.push_back(i);
+    }
+    std::mt19937 g(3);
+    shuffle(all_data.begin(), all_data.end(), g);
+    original_table.inititalize(all_data, COLUMN_SIZE);
+  }
+
+  //! Generate Workload
+  for (size_t i{}; i < NUM_QUERIES; i++) {
+    int64_t low_predicate =
+        rand() % COLUMN_SIZE + update_size * (1 - SELECTIVITY);
+    int64_t high_predicate =
+        low_predicate + (COLUMN_SIZE + update_size) * SELECTIVITY;
+    queries.emplace_back(low_predicate, high_predicate);
+  }
+  //! Set Index Structure
+  index = get_algorithm();
+}
+
 
 void Experiment::run() {
   for (size_t i {}; i < queries.size(); i ++){
     auto start_timer = system_clock::now();
     execute_query(i);
-    time.push_back(duration<double>(system_clock::now() - start_timer).count());
+    std::cout << duration<double>(system_clock::now() - start_timer).count() << std::endl;
   }
 }
 

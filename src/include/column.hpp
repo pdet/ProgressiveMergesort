@@ -41,10 +41,16 @@ public:
     }
 
     std::pair<int64_t ,int64_t > get(size_t i){
+        if (i >= size()){
+            throw " Invalid Memory";
+        }
       return data[i];
     }
 
     void set(std::pair<int64_t ,int64_t > value, size_t i){
+        if (i >= size()){
+            throw " Invalid Memory";
+        }
       data[i] = value;
     }
 

@@ -299,7 +299,7 @@ AVLNode* AVLTree::inOrderSucessor(AVLNode* node) {
     if (node->right != nullptr) {
         return FindMin(node->right.get());
     }
-    AVLNode* succ;
+    AVLNode* succ{};
     auto currentNode = root.get();
     //! Start from root and search for the sucessor down the tree
     while (currentNode) {
@@ -320,7 +320,7 @@ AVLNode* AVLTree::inOrderPredecessor(AVLNode* node) {
     if (node->left != nullptr) {
         return FindMax(node->left.get());
     }
-    AVLNode* succ;
+    AVLNode* succ{};
     auto currentNode = root.get();
     //! Start from root and search for the predecessor down the tree
     while (currentNode) {

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.9)
 project(ProgressiveMergesort)
 
 set(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 include_directories(src/include/)
 
 set(updates_sources src/experiment.cpp src/cracking/cracking.cpp src/cracking/avl_tree.cpp

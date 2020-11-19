@@ -3,6 +3,8 @@
 #include <cracking/cracker_index.hpp>
 #include <cassert>
 #include <algorithm>
+#include <iostream>
+
 using namespace std;
 
 int64_t binary_search(Column &c, int64_t key, int64_t lower, int64_t upper,
@@ -139,13 +141,11 @@ void CrackerIndex::merge_ripple(int64_t posL, int64_t posH,int64_t high) {
     int64_t pieceSize = rightNode->offset - currentNode->offset;
 
     if (currentNode == lastNode) {
-        pieceSize = index_column.size() - currentNode->offset;
-        //! We need to resize our column
-        if (pieceSize < posH - posL + 1) {
-            assert(0);
-            index_column.resize(index_column.size() + posH - posL + 1);
-        }
-        pieceSize = index_column.size() - currentNode->offset;
+        cout << " Here" << endl;
+        merge(posL, posH);
+        //! Erase from updates whatever was merged
+        append_list.erase( posL, posH + 1);
+        return;
     }
     assert(pieceSize >= 0);
     vector<AVLNode*> offsetsToUpdate;
@@ -154,6 +154,12 @@ void CrackerIndex::merge_ripple(int64_t posL, int64_t posH,int64_t high) {
     while (posL <= posH) {
         while (pieceSize <= 0) {
             currentNode = rightNode;
+             if (currentNode == lastNode) {
+                merge(posL, posH);
+                //! Erase from updates whatever was merged
+                append_list.erase( posL, posH + 1);
+                return;
+        }
             rightNode = tree.inOrderSucessor(currentNode);
             offsetsToUpdate.push_back(currentNode);
             pieceSize = rightNode->offset - currentNode->offset;

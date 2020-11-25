@@ -67,16 +67,6 @@ def run_all():
     data_scale = [1,10,100]
 
     for scale in data_scale:
-
-        exp = Experiment(10000,10000000 * scale,10* scale,10,1000,0.1)
-        exp.run()
-
-        exp = Experiment(10000,10000000* scale,100* scale,100,1000,0.1)
-        exp.run()
-
-        exp = Experiment(10000,10000000* scale,1000* scale,1000,1000,0.1)
-        exp.run()
-
         exp = Experiment(10000,10000000* scale,100* scale,10,1000,0.1)
         exp.run()
 

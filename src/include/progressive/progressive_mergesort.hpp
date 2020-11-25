@@ -19,5 +19,5 @@ private:
     ssize_t left_chunk, right_chunk;
     std::vector<bool> has_converged;
 
-    double SORTED_COLUMN_RATIO = 16;
+    double SORTED_COLUMN_RATIO = 1024;
 };

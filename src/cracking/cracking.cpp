@@ -278,7 +278,10 @@ void CrackerIndex::build(Column &original_column,
     }
     case UpdateType::Ripple: {
       sort(append_list.data.begin(), append_list.data.end());
+      if (!updates_sorted) {
+        sort(append_list.data.begin(), append_list.data.end());
         updates_sorted = true;
+      }
       int64_t initial_offset = binary_search_gte(append_list, range_query.first,
                                                  0, append_list.size() - 1);
       //! Nothing to merge

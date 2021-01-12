@@ -67,6 +67,16 @@ def run_all():
     data_scale = [1,10,100]
 
     for scale in data_scale:
+
+        exp = Experiment(10000,10000000 * scale,10* scale,10,1000,0.1)
+        exp.run()
+
+        exp = Experiment(10000,10000000* scale,100* scale,100,1000,0.1)
+        exp.run()
+
+        exp = Experiment(10000,10000000* scale,1000* scale,1000,1000,0.1)
+        exp.run()
+
         exp = Experiment(10000,10000000* scale,100* scale,10,1000,0.1)
         exp.run()
 
@@ -76,5 +86,25 @@ def run_all():
         exp = Experiment(10000,10000000* scale,10000* scale,1000,1000,0.1)
         exp.run()
 
+def run_pi():
+    exp = Experiment(10000,10000000,100,10,1,0.1)
+    exp.run_one(2,4)
+
+    exp = Experiment(10000,10000000,1000,10,1,0.1)
+    exp.run_one(2,4)
+
+    exp = Experiment(10000,10000000,10000,10,1,0.1)
+    exp.run_one(2,4)
+
+#Same experiments from updating a cracked database
+def sanity_check():
+    data_scale = [1]
+
+    for scale in data_scale:
+        exp = Experiment(10000,10000000* scale,100* scale,100,1000,0.1)
+        exp.run()
+
+        exp = Experiment(10000,10000000* scale,10* scale,10,1000,0.1)
+        exp.run()
 
 run_all()

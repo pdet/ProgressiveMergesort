@@ -26,25 +26,30 @@ ResultStruct ProgressiveMergesort::execute_range_query(Column &original_column, 
         merge_column = new Column();
         left_chunk = sort_chunks.size() - 2;
         right_chunk = sort_chunks.size() - 1;
-        merge_column->data.resize(sort_chunks[left_chunk]->qs_index.size + sort_chunks[right_chunk]->qs_index.size);
+        merge_column->data.reserve(sort_chunks[left_chunk]->qs_index.size + sort_chunks[right_chunk]->qs_index.size);
         left_column = 0;
         right_column = 0;
         merge_index = 0;
     }
     if (merge_column) {
-        size_t todo_merge = std::min(merge_column->data.size() - merge_index, (unsigned long) (DELTA * original_column.size()));
+        size_t todo_merge = std::min(merge_column->data.capacity() - merge_index, (unsigned long) (DELTA * original_column.size()));
         for (size_t j = 0; j < todo_merge; j++) {
             if (left_column < sort_chunks[left_chunk]->qs_index.size &&
                 (right_column >= sort_chunks[right_chunk]->qs_index.size ||
                   sort_chunks[left_chunk]->qs_index.data[left_column] < sort_chunks[right_chunk]->qs_index.data[right_column])) {
-                merge_column->data[merge_index].first = sort_chunks[left_chunk]->qs_index.data[left_column];
-                merge_column->data[merge_index++].second = sort_chunks[left_chunk]->qs_index.index[left_column++];
+                merge_column->data.emplace_back(sort_chunks[left_chunk]->qs_index.data[left_column],sort_chunks[left_chunk]->qs_index.index[left_column]);
+                left_column++;
+//                merge_column->data[merge_index].first = sort_chunks[left_chunk]->qs_index.data[left_column];
+//                merge_column->data[merge_index++].second = sort_chunks[left_chunk]->qs_index.index[left_column++];
             } else {
-                merge_column->data[merge_index].first = sort_chunks[right_chunk]->qs_index.data[right_column];
-                merge_column->data[merge_index++].second = sort_chunks[right_chunk]->qs_index.index[right_column++];
+                merge_column->data.emplace_back(sort_chunks[right_chunk]->qs_index.data[right_column],sort_chunks[right_chunk]->qs_index.index[right_column]);
+                right_column++;
+//                merge_column->data[merge_index].first = sort_chunks[right_chunk]->qs_index.data[right_column];
+//                merge_column->data[merge_index++].second = sort_chunks[right_chunk]->qs_index.index[right_column++];
             }
+            merge_index++;
         }
-        if (merge_index == merge_column->data.size()) {
+        if (merge_index == merge_column->data.capacity()) {
             //! finish merging
             delete sort_chunks[left_chunk];
             delete sort_chunks[right_chunk];
